@@ -1,0 +1,30 @@
+services:
+  backend:
+    build: ./backend
+    environment:
+      STATE_DIR: /app/data/state
+      UPLOAD_DIR: /app/data/uploads
+      OUTPUT_DIR: /app/data/output
+      TEMPLATE_PATH: /app/template/B2B_bulk_upload_template.xlsx
+      CORS_ORIGINS: ""
+    volumes:
+      - backend-data:/app/data
+      - ./templates/B2B_bulk_upload_template.xlsx:/app/template/B2B_bulk_upload_template.xlsx:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "${APP_BIND_ADDRESS:-127.0.0.1}:${APP_PORT:-3000}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  backend-data:
