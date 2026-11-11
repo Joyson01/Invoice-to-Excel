@@ -218,3 +218,14 @@ def download_file(session_id: str, filename: str):
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         filename=safe_filename
     )
+
+
+# Serve built frontend in unified single-container deployments
+FRONTEND_DIST = os.getenv("FRONTEND_DIST", os.path.join(os.path.dirname(BASE_DIR), "frontend_dist"))
+if not os.path.exists(FRONTEND_DIST):
+    FRONTEND_DIST = os.path.join(BASE_DIR, "frontend_dist")
+
+if os.path.isdir(FRONTEND_DIST):
+    from fastapi.staticfiles import StaticFiles
+    app.mount("/", StaticFiles(directory=FRONTEND_DIST, html=True), name="frontend")
+
